@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nocturne — Hero</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.4.1/tailwind.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --deep:      #0a0d29;
+    --violet:    #33125e;
+    --purple:    #5b1f8a;
+    --periwinkle:#8b8ff5;
+    --cyan-glow: #6fe3f0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--deep);
+  }
+
+  .font-display { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
+  .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---------- background: layered, drifting gradient ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(139,143,245,0.18), transparent 45%),
+      linear-gradient(160deg, var(--deep) 0%, var(--violet) 55%, var(--purple) 100%);
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+  .orb-1 {
+    width: 42vw; height: 42vw;
+    top: -10%; left: -8%;
+    background: radial-gradient(circle, #4c1d95 0%, transparent 70%);
+    animation: drift-a 26s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 38vw; height: 38vw;
+    bottom: -12%; right: -6%;
+    background: radial-gradient(circle, #1e3a8a 0%, transparent 70%);
+    animation: drift-b 32s ease-in-out infinite;
+  }
+  .orb-3 {
+    width: 30vw; height: 30vw;
+    top: 35%; left: 55%;
+    background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+    animation: drift-c 22s ease-in-out infinite;
+  }
+
+  @keyframes drift-a {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(6vw, 8vh) scale(1.12); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-5vw, -6vh) scale(1.08); }
+  }
+  @keyframes drift-c {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-4vw, 5vh) scale(0.94); }
+  }
+
+  .grain {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  /* ---------- the glass card: exact spec ---------- */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    color: #ffffff;
+  }
+
+  .ring-track { stroke: rgba(255,255,255,0.15); }
+  .ring-progress {
+    stroke: var(--cyan-glow);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    filter: drop-shadow(0 0 6px rgba(111,227,240,0.55));
+  }
+
+  .cta-glow {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.35);
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .cta-glow:hover {
+    background: rgba(255,255,255,0.18);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.4), 0 8px 24px rgba(111,227,240,0.25);
+    transform: translateY(-1px);
+  }
+  .cta-glow:focus-visible {
+    outline: 2px solid var(--cyan-glow);
+    outline-offset: 3px;
+  }
+
+  .link-quiet:focus-visible {
+    outline: 2px solid var(--cyan-glow);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero flex items-center justify-center px-5 py-20 sm:py-24">
+
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+  <div class="orb orb-3" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="relative z-10 w-full max-w-md sm:max-w-lg flex flex-col items-center text-center">
+
+    <p class="font-mono text-[11px] sm:text-xs tracking-[0.35em] uppercase text-white/50 mb-5">
+      Nocturne &nbsp;·&nbsp; Focus OS
+    </p>
+
+    <div class="glass-card w-full rounded-[28px] px-6 py-8 sm:px-10 sm:py-11 flex flex-col items-center">
+
+      <!-- live session indicator -->
+      <div class="flex items-center gap-3 mb-6">
+        <svg width="34" height="34" viewBox="0 0 34 34" class="shrink-0">
+          <circle class="ring-track" cx="17" cy="17" r="14" fill="none" stroke-width="3"></circle>
+          <circle class="ring-progress" cx="17" cy="17" r="14" fill="none" stroke-width="3"
+                  stroke-dasharray="88" stroke-dashoffset="26"></circle>
+        </svg>
+        <span class="font-mono text-sm text-white/80 tracking-wide">02:47:13 elapsed</span>
+      </div>
+
+      <h1 class="font-display text-[2.1rem] sm:text-[2.65rem] leading-[1.08] font-semibold mb-4 text-balance">
+        Think clearest<br class="hidden sm:block" /> after midnight.
+      </h1>
+
+      <p class="text-white/70 text-sm sm:text-base leading-relaxed max-w-[36ch] mb-8">
+        Nocturne pairs ambient soundscapes with a quiet, distraction-free
+        timer built for the hours everyone else is asleep.
+      </p>
+
+      <button class="cta-glow rounded-full px-7 py-3 font-medium text-sm sm:text-base text-white">
+        Start tonight's session
+      </button>
+
+      <div class="w-full mt-9 pt-6 border-t border-white/15 grid grid-cols-3 gap-3">
+        <div>
+          <p class="font-display text-lg sm:text-xl">14</p>
+          <p class="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-white/50 mt-1">Night streak</p>
+        </div>
+        <div>
+          <p class="font-display text-lg sm:text-xl">3.2k</p>
+          <p class="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-white/50 mt-1">Focused hours</p>
+        </div>
+        <div>
+          <p class="font-display text-lg sm:text-xl">1:00a</p>
+          <p class="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-white/50 mt-1">Next chime</p>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="#" class="link-quiet font-mono text-xs text-white/45 hover:text-white/70 mt-7 transition-colors">
+      No account needed — press play and go →
+    </a>
+
+  </div>
+
+</section>
+
+</body>
+</html>
