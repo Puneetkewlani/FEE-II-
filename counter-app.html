@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .counter-wrapper {
+      width: 100%;
+      max-width: 500px;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .counter-container {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .header {
+      margin-bottom: 35px;
+    }
+
+    .title {
+      color: #1a1a1a;
+      font-size: 2.8em;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.95em;
+      font-weight: 400;
+    }
+
+    .counter-display {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 35px 25px;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .counter-display.positive {
+      background: linear-gradient(135deg, #51cf66 0%, #2f9e44 100%);
+      box-shadow: 0 10px 30px rgba(81, 207, 102, 0.3);
+    }
+
+    .counter-display.negative {
+      background: linear-gradient(135deg, #ff6b6b 0%, #e63946 100%);
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .count-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .count-value {
+      font-size: 4.5em;
+      color: white;
+      font-weight: 800;
+      margin: 15px 0;
+      letter-spacing: -1px;
+    }
+
+    .count-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .count-bar-fill {
+      height: 100%;
+      background: white;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      opacity: 0.8;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .stat-label {
+      color: #888;
+      font-size: 0.8em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      color: #1a1a1a;
+      font-size: 1.8em;
+      font-weight: 700;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px 12px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-icon {
+      font-size: 1.8em;
+      display: block;
+    }
+
+    .btn-text {
+      font-size: 0.85em;
+      display: block;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-minus {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+      color: white;
+    }
+
+    .btn-minus:hover {
+      background: linear-gradient(135deg, #ff5252 0%, #ff3838 100%);
+    }
+
+    .btn-reset {
+      background: linear-gradient(135deg, #ffd93d 0%, #ffb81c 100%);
+      color: #333;
+    }
+
+    .btn-reset:hover {
+      background: linear-gradient(135deg, #ffb81c 0%, #ff9f00 100%);
+    }
+
+    .btn-plus {
+      background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+      color: white;
+    }
+
+    .btn-plus:hover {
+      background: linear-gradient(135deg, #37b24d 0%, #2f9e44 100%);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+      color: white;
+      grid-column: 1 / -1;
+      flex-direction: row;
+      gap: 8px;
+      min-height: auto;
+      padding: 12px 16px;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 480px) {
+      .counter-container {
+        padding: 25px;
+      }
+
+      .title {
+        font-size: 2.2em;
+      }
+
+      .count-value {
+        font-size: 3.5em;
+      }
+
+      .button-group {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .btn {
+        min-height: 70px;
+      }
+
+      .btn-secondary {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="counter-wrapper">
+    <div class="counter-container">
+      <div class="header">
+        <h1 class="title">Counter</h1>
+        <p class="subtitle">Click the buttons to change the value</p>
+      </div>
+
+      <div id="counterDisplay" class="counter-display neutral">
+        <span class="count-label">Current Count</span>
+        <p class="count-value" id="countValue">0</p>
+        <div class="count-bar">
+          <div id="countBarFill" class="count-bar-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-label">Max</span>
+          <span class="stat-value" id="maxValue">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Min</span>
+          <span class="stat-value" id="minValue">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Steps</span>
+          <span class="stat-value" id="stepsValue">0</span>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="decreaseBtn" class="btn btn-minus" title="Decrease by 1">
+          <span class="btn-icon">−</span>
+          <span class="btn-text">Decrease</span>
+        </button>
+        <button id="resetBtn" class="btn btn-reset" title="Reset to zero">
+          <span class="btn-icon">↺</span>
+          <span class="btn-text">Reset</span>
+        </button>
+        <button id="increaseBtn" class="btn btn-plus" title="Increase by 1">
+          <span class="btn-icon">+</span>
+          <span class="btn-text">Increase</span>
+        </button>
+      </div>
+
+      <button id="undoBtn" class="btn btn-secondary" title="Undo last action" disabled>
+        ↶ Undo
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let count = 0;
+    let history = [0];
+
+    const countValue = document.getElementById('countValue');
+    const maxValue = document.getElementById('maxValue');
+    const minValue = document.getElementById('minValue');
+    const stepsValue = document.getElementById('stepsValue');
+    const countDisplay = document.getElementById('counterDisplay');
+    const countBarFill = document.getElementById('countBarFill');
+    const increaseBtn = document.getElementById('increaseBtn');
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const undoBtn = document.getElementById('undoBtn');
+
+    function updateDisplay() {
+      countValue.textContent = count;
+      maxValue.textContent = Math.max(...history);
+      minValue.textContent = Math.min(...history);
+      stepsValue.textContent = history.length - 1;
+
+      countBarFill.style.width = `${Math.min(Math.abs(count) * 5, 100)}%`;
+
+      countDisplay.className = 'counter-display';
+      if (count > 0) {
+        countDisplay.classList.add('positive');
+      } else if (count < 0) {
+        countDisplay.classList.add('negative');
+      } else {
+        countDisplay.classList.add('neutral');
+      }
+
+      undoBtn.disabled = history.length <= 1;
+    }
+
+    increaseBtn.addEventListener('click', () => {
+      count++;
+      history.push(count);
+      updateDisplay();
+    });
+
+    decreaseBtn.addEventListener('click', () => {
+      count--;
+      history.push(count);
+      updateDisplay();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      count = 0;
+      history = [0];
+      updateDisplay();
+    });
+
+    undoBtn.addEventListener('click', () => {
+      if (history.length > 1) {
+        history.pop();
+        count = history[history.length - 1];
+        updateDisplay();
+      }
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
