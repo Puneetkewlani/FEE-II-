@@ -4,6 +4,8 @@
   "description": "��#\u0000 \u0000F\u0000E\u0000E\u0000-\u0000I\u0000I\u0000-\u0000\r\u0000 \u0000",
   "main": "l.js",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,5 +23,8 @@
   "dependencies": {
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "vite": "^8.3.3"
   }
 }
