@@ -1,201 +1,246 @@
-import React, { useState } from 'react';
+import { useReducer, useState } from 'react';
 import './App.css';
 
-const initialValues = {
-  fullName: '',
-  email: '',
-  phone: '',
-  track: '',
-  experience: '',
-  skills: [],
-  message: '',
-  updates: false,
-};
+const products = [
+  {
+    id: 'arc-lamp',
+    name: 'Arc Table Lamp',
+    category: 'Home',
+    price: 68,
+    note: 'Warm light, anywhere',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Sculptural table lamp on a wooden desk',
+    tone: 'sage',
+  },
+  {
+    id: 'daily-tote',
+    name: 'Daily Carry Tote',
+    category: 'Accessories',
+    price: 34,
+    note: 'Made for the everyday',
+    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Neutral canvas tote bag',
+    tone: 'sand',
+  },
+  {
+    id: 'pour-over',
+    name: 'Pour Over Set',
+    category: 'Kitchen',
+    price: 52,
+    note: 'A slower kind of morning',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Coffee being prepared for a pour over',
+    tone: 'clay',
+  },
+  {
+    id: 'field-notes',
+    name: 'Field Notes Journal',
+    category: 'Stationery',
+    price: 18,
+    note: 'Room for the next idea',
+    image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Open notebook with a pen on a desk',
+    tone: 'blue',
+  },
+  {
+    id: 'everyday-bottle',
+    name: 'Everyday Bottle',
+    category: 'Accessories',
+    price: 29,
+    note: 'Hydration, on your terms',
+    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Reusable water bottle',
+    tone: 'blue',
+  },
+  {
+    id: 'linen-throw',
+    name: 'Linen Throw',
+    category: 'Home',
+    price: 74,
+    note: 'Soft texture, lasting comfort',
+    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85',
+    imageAlt: 'Soft throw draped across an armchair',
+    tone: 'sand',
+  },
+];
 
-const skillOptions = ['HTML & CSS', 'JavaScript', 'React', 'UI design'];
+const categories = ['Everything', 'Home', 'Accessories', 'Kitchen', 'Stationery'];
 
-function validateField(name, value) {
-  if (name === 'fullName' && !value.trim()) return 'Please enter your name.';
-  if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    return 'Enter a valid email address.';
+function cartReducer(cart, action) {
+  switch (action.type) {
+    case 'add': {
+      const existingItem = cart.find((item) => item.id === action.product.id);
+      return existingItem
+        ? cart.map((item) => item.id === action.product.id ? { ...item, quantity: item.quantity + 1 } : item)
+        : [...cart, { ...action.product, quantity: 1 }];
+    }
+    case 'increase':
+      return cart.map((item) => item.id === action.id ? { ...item, quantity: item.quantity + 1 } : item);
+    case 'decrease':
+      return cart
+        .map((item) => item.id === action.id ? { ...item, quantity: item.quantity - 1 } : item)
+        .filter((item) => item.quantity > 0);
+    case 'remove':
+      return cart.filter((item) => item.id !== action.id);
+    case 'clear':
+      return [];
+    default:
+      return cart;
   }
-  if (name === 'phone' && value && !/^[\d+()\-\s]{7,}$/.test(value)) {
-    return 'Enter a valid phone number.';
-  }
-  if (name === 'track' && !value) return 'Choose a learning track.';
-  if (name === 'experience' && !value) return 'Choose your experience level.';
-  return '';
 }
 
 export default function App() {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [cart, dispatch] = useReducer(cartReducer, []);
+  const [activeCategory, setActiveCategory] = useState('Everything');
+  const [search, setSearch] = useState('');
 
-  function handleChange(event) {
-    const { name, value, checked, type } = event.target;
-    setValues((current) => ({
-      ...current,
-      [name]: type === 'checkbox' && name === 'updates' ? checked : value,
-    }));
-    setSubmitted(false);
-  }
-
-  function handleSkillChange(event) {
-    const { checked, value } = event.target;
-    setValues((current) => ({
-      ...current,
-      skills: checked
-        ? [...current.skills, value]
-        : current.skills.filter((skill) => skill !== value),
-    }));
-  }
-
-  function handleBlur(event) {
-    const { name, value } = event.target;
-    setTouched((current) => ({ ...current, [name]: true }));
-    setErrors((current) => ({ ...current, [name]: validateField(name, value) }));
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    const nextErrors = Object.fromEntries(
-      ['fullName', 'email', 'phone', 'track', 'experience'].map((name) => [
-        name,
-        validateField(name, values[name]),
-      ]),
-    );
-    setErrors(nextErrors);
-    setTouched({ fullName: true, email: true, phone: true, track: true, experience: true });
-
-    if (Object.values(nextErrors).some(Boolean)) {
-      setSubmitted(false);
-      return;
-    }
-
-    setSubmitted(true);
-  }
-
-  function handleReset() {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-    setSubmitted(false);
-  }
-
-  function fieldError(name) {
-    return touched[name] ? errors[name] : '';
-  }
+  const visibleProducts = products.filter((product) => {
+    const matchesCategory = activeCategory === 'Everything' || product.category === activeCategory;
+    const matchesSearch = `${product.name} ${product.category}`.toLowerCase().includes(search.trim().toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+  const itemCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const shipping = subtotal === 0 || subtotal >= 100 ? 0 : 6;
 
   return (
-    <main className="page-shell">
-      <header className="topbar">
-        <a className="wordmark" href="#form" aria-label="Fieldnote home">fieldnote<span>.</span></a>
-        <span className="topbar-note">LEARNING COMMUNITY / 2025</span>
+    <main className="shop-page">
+      <div className="announcement">Thoughtful things for everyday living <span>·</span> Free shipping over $100</div>
+      <header className="site-header">
+        <a className="brand" href="#top" aria-label="ShopEasy home">shop<span>easy</span><b>.</b></a>
+        <nav className="main-nav" aria-label="Main navigation">
+          <a href="#products">Shop all</a>
+          <a href="#products">Our picks</a>
+          <a href="#story">Our story</a>
+        </nav>
+        <a className="cart-jump" href="#cart" aria-label={`Cart with ${itemCount} items`}>
+          <span className="bag-icon" aria-hidden="true">▱</span> Cart <span className="cart-count">{itemCount}</span>
+        </a>
       </header>
 
-      <section className="form-layout" id="form">
-        <aside className="intro-panel">
-          <p className="eyebrow"><span className="eyebrow-dot" /> APPLICATIONS OPEN</p>
-          <h1>Make room<br />for what&apos;s <em>next.</em></h1>
-          <p className="intro-copy">A good place to begin is with a few details. Tell us what you want to learn and we&apos;ll help you find your way in.</p>
-          <div className="issue-mark" aria-hidden="true">F<span>/</span>01</div>
-          <div className="side-caption">SMALL STEPS.<br />REAL MOMENTUM.</div>
-        </aside>
+      <section className="shop-hero" id="top">
+        <div className="hero-copy">
+          <p className="eyebrow"><span className="eyebrow-mark" /> THE GOOD EVERYDAY</p>
+          <h1>Find your<br /><em>everyday</em> favorite.</h1>
+          <p>Useful things, made with care. A considered collection for slower mornings and better little moments.</p>
+          <a className="hero-link" href="#products">Explore the collection <span aria-hidden="true">↘</span></a>
+        </div>
+        <div className="hero-art" role="img" aria-label="A calm, sunlit living room with thoughtfully chosen home goods">
+          <div className="hero-stamp"><span>MADE FOR</span><strong>the good<br />everyday</strong><span>EST. 2024</span></div>
+        </div>
+        <div className="hero-index">01 <span>/</span> 04</div>
+      </section>
 
-        <section className="form-panel" aria-labelledby="form-title">
-          <div className="form-heading">
+      <div className="benefit-strip" id="story">
+        <span><b>01</b> Considered design</span>
+        <span><b>02</b> Made to be used</span>
+        <span><b>03</b> Packed with care</span>
+      </div>
+
+      <section className="shop-content" id="products">
+        <div className="catalog">
+          <div className="section-heading">
             <div>
-              <p className="eyebrow">YOUR NEXT CHAPTER</p>
-              <h2 id="form-title">Start an application</h2>
+              <p className="eyebrow">THE SHOP</p>
+              <h2>Good things, gathered.</h2>
             </div>
-            <span className="step-count">01 <span>/ 01</span></span>
+            <label className="search-box">
+              <span aria-hidden="true">⌕</span>
+              <input aria-label="Search products" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Find something..." />
+            </label>
           </div>
 
-          <form onSubmit={handleSubmit} onReset={handleReset} noValidate>
-            <div className="field-row">
-              <div className="field">
-                <label htmlFor="fullName">Full name <span>*</span></label>
-                <input id="fullName" name="fullName" value={values.fullName} onChange={handleChange} onBlur={handleBlur} placeholder="Your name" autoComplete="name" aria-invalid={Boolean(fieldError('fullName'))} />
-                {fieldError('fullName') && <small className="error-text">{fieldError('fullName')}</small>}
-              </div>
-              <div className="field">
-                <label htmlFor="email">Email address <span>*</span></label>
-                <input id="email" name="email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur} placeholder="you@example.com" autoComplete="email" aria-invalid={Boolean(fieldError('email'))} />
-                {fieldError('email') && <small className="error-text">{fieldError('email')}</small>}
-              </div>
+          <div className="category-list" aria-label="Filter products by category">
+            {categories.map((category) => (
+              <button
+                className={activeCategory === category ? 'category-button active' : 'category-button'}
+                type="button"
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                aria-pressed={activeCategory === category}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="product-grid">
+            {visibleProducts.map((product, index) => {
+              const cartItem = cart.find((item) => item.id === product.id);
+              return (
+                <article className="product-card" key={product.id} style={{ '--card-order': index }}>
+                  <div className={`product-image ${product.tone}`}>
+                    <img src={product.image} alt={product.imageAlt} loading="lazy" />
+                    <span className="product-category">{product.category}</span>
+                  </div>
+                  <div className="product-info">
+                    <div>
+                      <h3>{product.name}</h3>
+                      <p>{product.note}</p>
+                    </div>
+                    <span className="product-price">${product.price}</span>
+                  </div>
+                  <button className={cartItem ? 'add-button added' : 'add-button'} type="button" onClick={() => dispatch({ type: 'add', product })}>
+                    {cartItem ? `Add another · ${cartItem.quantity} in bag` : 'Add to bag'} <span aria-hidden="true">+</span>
+                  </button>
+                </article>
+              );
+            })}
+            {visibleProducts.length === 0 && <p className="no-results">Nothing here yet. Try another search.</p>}
+          </div>
+        </div>
+
+        <aside className="cart-panel" id="cart" aria-labelledby="cart-title">
+          <div className="cart-heading">
+            <div>
+              <p className="eyebrow">YOUR SELECTION</p>
+              <h2 id="cart-title">The bag <span>({itemCount})</span></h2>
             </div>
+            {cart.length > 0 && <button className="clear-button" type="button" onClick={() => dispatch({ type: 'clear' })}>Clear bag</button>}
+          </div>
 
-            <div className="field-row">
-              <div className="field">
-                <label htmlFor="phone">Phone <span className="optional">OPTIONAL</span></label>
-                <input id="phone" name="phone" type="tel" value={values.phone} onChange={handleChange} onBlur={handleBlur} placeholder="+1 (555) 000-0000" autoComplete="tel" aria-invalid={Boolean(fieldError('phone'))} />
-                {fieldError('phone') && <small className="error-text">{fieldError('phone')}</small>}
-              </div>
-              <div className="field">
-                <label htmlFor="track">Learning track <span>*</span></label>
-                <select id="track" name="track" value={values.track} onChange={handleChange} onBlur={handleBlur} aria-invalid={Boolean(fieldError('track'))}>
-                  <option value="">Select a track</option>
-                  <option value="frontend">Frontend development</option>
-                  <option value="product">Product design</option>
-                  <option value="fullstack">Full-stack foundations</option>
-                </select>
-                {fieldError('track') && <small className="error-text">{fieldError('track')}</small>}
-              </div>
+          {cart.length === 0 ? (
+            <div className="empty-cart">
+              <span className="empty-bag" aria-hidden="true">▱</span>
+              <p>Your bag is taking a breather.</p>
+              <span>Find a little something for your everyday.</span>
             </div>
-
-            <fieldset className="choice-fieldset">
-              <legend>Where are you starting from? <span>*</span></legend>
-              <div className="radio-options">
-                {['Just curious', 'Some experience', 'Ready to build'].map((level) => (
-                  <label className="choice-option" key={level}>
-                    <input type="radio" name="experience" value={level} checked={values.experience === level} onChange={handleChange} onBlur={handleBlur} />
-                    <span className="custom-radio" />{level}
-                  </label>
-                ))}
-              </div>
-              {fieldError('experience') && <small className="error-text">{fieldError('experience')}</small>}
-            </fieldset>
-
-            <fieldset className="choice-fieldset skills-fieldset">
-              <legend>What have you worked with? <span className="optional">CHOOSE ALL THAT APPLY</span></legend>
-              <div className="check-options">
-                {skillOptions.map((skill) => (
-                  <label className="choice-option" key={skill}>
-                    <input type="checkbox" name="skills" value={skill} checked={values.skills.includes(skill)} onChange={handleSkillChange} />
-                    <span className="custom-checkbox" />{skill}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <div className="field message-field">
-              <label htmlFor="message">What would you love to make?</label>
-              <textarea id="message" name="message" value={values.message} onChange={handleChange} placeholder="A project, an idea, or a skill you want to grow…" rows="3" maxLength="240" />
-              <span className="character-count">{values.message.length} / 240</span>
+          ) : (
+            <div className="cart-items">
+              {cart.map((item) => (
+                <article className="cart-item" key={item.id}>
+                  <img src={item.image} alt="" />
+                  <div className="cart-item-detail">
+                    <h3>{item.name}</h3>
+                    <span>${item.price}</span>
+                    <div className="quantity-control" aria-label={`Quantity for ${item.name}`}>
+                      <button type="button" aria-label={`Decrease ${item.name} quantity`} onClick={() => dispatch({ type: 'decrease', id: item.id })}>−</button>
+                      <span>{item.quantity}</span>
+                      <button type="button" aria-label={`Increase ${item.name} quantity`} onClick={() => dispatch({ type: 'increase', id: item.id })}>+</button>
+                    </div>
+                  </div>
+                  <div className="cart-item-end">
+                    <span>${item.price * item.quantity}</span>
+                    <button className="remove-button" type="button" onClick={() => dispatch({ type: 'remove', id: item.id })}>Remove</button>
+                  </div>
+                </article>
+              ))}
             </div>
+          )}
 
-            <label className="updates-option">
-              <input type="checkbox" name="updates" checked={values.updates} onChange={handleChange} />
-              <span className="custom-checkbox" />Send me occasional learning notes and program updates.
-            </label>
-
-            {submitted && (
-              <p className="success-message" role="status">
-                <span aria-hidden="true">✓</span> Application received. Thanks, {values.fullName.trim()}! We&apos;ll be in touch at {values.email}.
-              </p>
-            )}
-
-            <div className="form-actions">
-              <button className="submit-button" type="submit">Send application <span aria-hidden="true">↗</span></button>
-              <button className="reset-button" type="reset">Clear form</button>
-            </div>
-            <p className="required-note"><span>*</span> Required fields</p>
-          </form>
-        </section>
+          <div className="cart-totals">
+            <div><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
+            <div><span>Shipping</span><strong>{shipping === 0 ? 'Complimentary' : `$${shipping.toFixed(2)}`}</strong></div>
+            <div className="total-line"><span>Total</span><strong>${(subtotal + shipping).toFixed(2)}</strong></div>
+            {subtotal > 0 && subtotal < 100 && <p className="shipping-note">You&apos;re ${(100 - subtotal).toFixed(2)} away from free shipping.</p>}
+            <button className="checkout-button" type="button" disabled={cart.length === 0}>Continue to checkout <span aria-hidden="true">↗</span></button>
+            <p className="secure-note">A little joy, packed with care.</p>
+          </div>
+        </aside>
       </section>
-      <footer className="page-footer"><span>FIELDNOTE LEARNING</span><span>GOOD THINGS TAKE PRACTICE.</span></footer>
+
+      <footer className="site-footer"><a className="brand" href="#top">shop<span>easy</span><b>.</b></a><span>GOOD THINGS, FOR EVERY DAY.</span><a href="#top">Back to top ↑</a></footer>
     </main>
   );
 }
+   
